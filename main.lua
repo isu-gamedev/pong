@@ -1,33 +1,30 @@
-require('vector')
-local PlayerModule = require('player')
-
-local Player, PlayerPosition = PlayerModule.Player, PlayerModule.PlayerPosition
+require('core.utils')
+require('core.vector')
+require('core.mover')
+require('modules.paddle')
+require('modules.player')
+require('modules.ball')
+require('modules.game')
 
 function love.load()
     width = love.graphics.getWidth()
     height = love.graphics.getHeight()
 
-    leftPlayer = Player:create(PlayerPosition.LEFT)
-    rightPlayer = Player:create(PlayerPosition.RIGHT)
+    game = Game:create()
 end
 
 function love.draw()
-    leftPlayer:draw()
-    rightPlayer:draw()
+    game:draw()
 end
 
 function love.update(dt)
-    leftPlayer:update(dt)
-    rightPlayer:update(dt)
+    game:update(dt)
 end
 
 function love.keypressed(key)
-    leftPlayer:keypressed(key)
-    rightPlayer:keypressed(key)
+    game:keypressed(key)
 end
 
 function love.keyreleased(key)
-    leftPlayer:keyreleased(key)
-    rightPlayer:keyreleased(key)
+    game:keyreleased(key)
 end
-
