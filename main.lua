@@ -1,20 +1,33 @@
-local Paddle = require('paddle')
 require('vector')
+local PlayerModule = require('player')
+
+local Player, PlayerPosition = PlayerModule.Player, PlayerModule.PlayerPosition
 
 function love.load()
     width = love.graphics.getWidth()
     height = love.graphics.getHeight()
 
-    -- leftPaddle = Paddle:create(0, height / 2)
-    -- rightPaddle = Paddle:create()
-end
-
-function love.update(dt)
-    -- leftPaddle:update(dt)
-    -- rightPaddle:update(dt)
+    leftPlayer = Player:create(PlayerPosition.LEFT)
+    rightPlayer = Player:create(PlayerPosition.RIGHT)
 end
 
 function love.draw()
-    -- leftPaddle:draw()
-    -- rightPaddle:draw()
+    leftPlayer:draw()
+    rightPlayer:draw()
 end
+
+function love.update(dt)
+    leftPlayer:update(dt)
+    rightPlayer:update(dt)
+end
+
+function love.keypressed(key)
+    leftPlayer:keypressed(key)
+    rightPlayer:keypressed(key)
+end
+
+function love.keyreleased(key)
+    leftPlayer:keyreleased(key)
+    rightPlayer:keyreleased(key)
+end
+

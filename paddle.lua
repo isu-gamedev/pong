@@ -6,22 +6,18 @@ local PaddleDirection = {
     DOWN = 2
 }
 
-local PaddleConfig = {
-    width = 10,
-    hegiht = 80,
-    speed = 200
-}
+Paddle.width = 10
+Paddle.height = 80
+Paddle.speed = 300
 
 function Paddle:create(x, y)
     local self = {}
     setmetatable(self, Paddle)
-
-    self.width = PaddleConfig.width
-    self.height = PaddleConfig.hegiht
-    self.speed = PaddleConfig.speed
-    self.location = Vector:create(x, y - self.height / 2)
+    self.width = Paddle.width
+    self.height = Paddle.height
+    self.speed = Paddle.speed
+    self.location = Vector:create(x, y)
     self.direction = nil
-
     return self
 end
 
@@ -30,17 +26,17 @@ function Paddle:draw()
 end
 
 function Paddle:update(dt)
-    if self.direction == PaddleDirection.UP then
-        self:move(-self.speed * dt)
-    elseif self.direction == PaddleDirection.DOWN then
-        self:move(self.speed * dt)
-    end
-
+    self:move(dt)
     self:checkBounds()
 end
 
-function Paddle:move(dy)
-    self.location:add(Vector:create(0, dy))
+function Paddle:move(dt)
+    -- HINT: Делаю без Vector:add, так как легче залезть внутрь, чем создавать инстанс вектора для изменения одного поля
+    if self.direction == PaddleDirection.UP then
+        self.location.y = self.location.y - self.speed * dt
+    elseif self.direction == PaddleDirection.DOWN then
+        self.location.y = self.location.y + self.speed * dt
+    end
 end
 
 function Paddle:checkBounds()
@@ -54,4 +50,7 @@ function Paddle:checkBounds()
     end
 end
 
-return Paddle
+return {
+    Paddle = Paddle,
+    PaddleDirection = PaddleDirection
+}
