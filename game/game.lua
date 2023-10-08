@@ -16,20 +16,18 @@ function Game:create()
     local game = {}
     setmetatable(game, Game)
 
-    local paddleX = 20
-    local paddleY = height / 2 - GameConfig.Defaults.paddleHeight / 2
-    local leftPaddle = Paddle:create(Vector:create(paddleX, paddleY), GameConfig.Defaults.paddleSpeed, GameConfig.Defaults.paddleWidth,
+    local px, py = 20, height / 2 - GameConfig.Defaults.paddleHeight / 2
+    local leftPaddle = Paddle:create(Vector:create(px, py), GameConfig.Defaults.paddleSpeed, GameConfig.Defaults.paddleWidth,
         GameConfig.Defaults.paddleHeight, 0, height)
-    local rightPaddle = Paddle:create(Vector:create(width - paddleX - GameConfig.Defaults.paddleWidth, paddleY),
-        GameConfig.Defaults.paddleSpeed, GameConfig.Defaults.paddleWidth, GameConfig.Defaults.paddleHeight, 0, height)
+    local rightPaddle = Paddle:create(Vector:create(width - px - GameConfig.Defaults.paddleWidth, py), GameConfig.Defaults.paddleSpeed,
+        GameConfig.Defaults.paddleWidth, GameConfig.Defaults.paddleHeight, 0, height)
 
     game.leftPlayer = Player:create(leftPaddle)
     game.rightPlayer = Player:create(rightPaddle)
 
-    local ballX = width / 2
-    local ballY = height / 2
+    local bx, by = width / 2, height / 2
 
-    game.ball = Ball:create(Vector:create(ballX, ballY), GameConfig.Defaults.ballSpeed, GameConfig.Defaults.ballRadius, 0, height,
+    game.ball = Ball:create(Vector:create(bx, by), GameConfig.Defaults.ballSpeed, GameConfig.Defaults.ballRadius, 0, height,
         GameConfig.Defaults.ballFootprintCount)
 
     return game

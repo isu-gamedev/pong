@@ -8,14 +8,14 @@ PaddleDirection = {
     DOWN = 2
 }
 
-function Paddle:create(position, speed, width, height, minY, maxY)
+function Paddle:create(position, speed, width, height, miny, maxy)
     local paddle = Mover:create(position, Vector:create(0, speed))
     setmetatable(paddle, Paddle)
 
     paddle.width = width
     paddle.height = height
-    paddle.minY = minY
-    paddle.maxY = maxY
+    paddle.miny = miny
+    paddle.maxy = maxy
     paddle.direction = nil
 
     return paddle
@@ -52,8 +52,8 @@ function Paddle:stop()
 end
 
 function Paddle:checkBounds()
-    local upperBound = self.maxY - self.height
-    local bottomBound = self.minY
+    local upperBound = self.maxy - self.height
+    local bottomBound = self.miny
 
     if self.position.y >= upperBound then
         self.position.y = upperBound

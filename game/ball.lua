@@ -3,14 +3,14 @@ Ball.__index = Ball
 
 setmetatable(Ball, Mover)
 
-function Ball:create(position, speed, radius, minY, maxY, footprintCount)
+function Ball:create(position, speed, radius, miny, maxy, footprintCount)
     local ball = Mover:create(position, Vector:create(speed, 0))
     setmetatable(ball, Ball)
 
     ball.speed = speed
     ball.radius = radius
-    ball.minY = minY
-    ball.maxY = maxY
+    ball.miny = miny
+    ball.maxy = maxy
 
     ball.footprints = {}
     ball.footprintCount = footprintCount
@@ -80,8 +80,8 @@ function Ball:addFootprint(dt)
 end
 
 function Ball:checkBounds()
-    local upperBound = self.maxY - self.radius
-    local bottomBound = self.minY + self.radius
+    local upperBound = self.maxy - self.radius
+    local bottomBound = self.miny + self.radius
 
     if self.position.y >= upperBound then
         self.position.y = upperBound
