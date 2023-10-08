@@ -1,16 +1,16 @@
 Mover = {}
 Mover.__index = Mover
 
-function Mover:create(location, velocity)
+function Mover:create(position, velocity)
     local mover = {}
     setmetatable(mover, Mover)
 
-    mover.location = location
+    mover.position = position
     mover.velocity = velocity
 
     return mover
 end
 
 function Mover:applyForce(force)
-    self.location:add(force)
+    self.position:add(force)
 end

@@ -1,10 +1,4 @@
-require('core.utils')
-require('core.vector')
-require('core.mover')
-require('modules.paddle')
-require('modules.player')
-require('modules.ball')
-require('modules.game')
+require('game.init')
 
 function love.load()
     width = love.graphics.getWidth()
