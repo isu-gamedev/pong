@@ -4,14 +4,16 @@ Vector.__index = Vector
 function Vector:create(x, y)
     local vector = {}
     setmetatable(vector, Vector)
+
     vector.x = x
     vector.y = y
+
     return vector
 end
 
 function Vector:random(minx, maxx, miny, maxy)
-    x = love.math.random(minx, maxx)
-    y = love.math.random(miny, maxy)
+    local x = love.math.random(minx, maxx)
+    local y = love.math.random(miny, maxy)
     return Vector:create(x, y)
 end
 
@@ -40,15 +42,15 @@ function Vector:mag()
 end
 
 function Vector:norm()
-    m = self:mag()
-    if m > 0 then
-        return self / m
+    local mag = self:mag()
+    if mag > 0 then
+        return self / mag
     end
 end
 
 function Vector:limit(max)
     if self:mag() > max then
-        norm = self:norm()
+        local norm = self:norm()
         return norm * max
     end
     return self
@@ -72,4 +74,11 @@ end
 function Vector:div(value)
     self.x = self.x / value
     self.y = self.y / value
+end
+
+function Vector:reflect(angle)
+    local mag = self:mag()
+    local sin = mag * math.sin(angle)
+    local cos = mag * math.cos(angle)
+    return Vector:create(self.x > 0 and -cos or cos, self.y > 0 and sin or -sin)
 end
