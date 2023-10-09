@@ -8,28 +8,27 @@ IntersectionDirection = {
     LEFT = 4
 }
 
-function Utils.ballIntersect(ball, rectBBox, force)
-    local nx = force.x
-    local ny = force.y
+function Utils.ballIntersect(ball, rectBBox, velocityDelta)
+    local dx = velocityDelta.x
+    local dy = velocityDelta.y
+
     local point = nil
 
-    if nx < 0 then
-        point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + nx, ball.position.y + ny, rectBBox.right + ball.radius,
+    if dx < 0 then
+        point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + dx, ball.position.y + dy, rectBBox.right + ball.radius,
             rectBBox.top - ball.radius, rectBBox.right + ball.radius, rectBBox.bottom + ball.radius, IntersectionDirection.RIGHT)
-    elseif nx > 0 then
-        point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + nx, ball.position.y + ny, rectBBox.left - ball.radius,
+    elseif dx > 0 then
+        point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + dx, ball.position.y + dy, rectBBox.left - ball.radius,
             rectBBox.top - ball.radius, rectBBox.left - ball.radius, rectBBox.bottom + ball.radius, IntersectionDirection.LEFT)
     end
 
     if point == nil then
-        if ny < 0 then
-            point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + nx, ball.position.y + ny,
-                rectBBox.left - ball.radius, rectBBox.bottom + ball.radius, rectBBox.right + ball.radius, rectBBox.bottom + ball.radius,
-                IntersectionDirection.BOTTOM)
-        elseif ny > 0 then
-            point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + nx, ball.position.y + ny,
-                rectBBox.left - ball.radius, rectBBox.top - ball.radius, rectBBox.right + ball.radius, rectBBox.top - ball.radius,
-                IntersectionDirection.TOP)
+        if dy < 0 then
+            point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + dx, ball.position.y + dy, rectBBox.left - ball.radius,
+                rectBBox.bottom + ball.radius, rectBBox.right + ball.radius, rectBBox.bottom + ball.radius, IntersectionDirection.BOTTOM)
+        elseif dy > 0 then
+            point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + dx, ball.position.y + dy, rectBBox.left - ball.radius,
+                rectBBox.top - ball.radius, rectBBox.right + ball.radius, rectBBox.top - ball.radius, IntersectionDirection.TOP)
         end
     end
 

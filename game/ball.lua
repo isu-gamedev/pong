@@ -8,12 +8,11 @@ BallDirection = {
 }
 
 function Ball:create(position, velocity, radius, footprintCount)
-    local ball = Mover:create(position, Vector:create(velocity, 0))
+    local ball = Mover:create(position, velocity)
     setmetatable(ball, Ball)
 
     local footprintTimeout = radius / velocity:mag() * 3
 
-    ball.velocity = velocity
     ball.radius = radius
     ball.footprints = {}
     ball.footprintCount = footprintCount
@@ -61,12 +60,12 @@ end
 
 function Ball:checkBounds()
     local upperBound = height - self.radius
-    local bottomBound = self.radius
+    local lowerBound = self.radius
 
-    if self.position.y >= upperBound or self.position.y <= bottomBound then
+    if self.position.y >= upperBound or self.position.y <= lowerBound then
         self.velocity.y = -self.velocity.y
     end
-    self.position.y = math.min(upperBound, math.max(bottomBound, self.position.y))
+    self.position.y = math.min(upperBound, math.max(lowerBound, self.position.y))
 end
 
 function Ball:horizontalBounce(angle)
@@ -82,6 +81,6 @@ function Ball:getDirection()
 end
 
 function Ball:isOutOfBounds()
-    return self.position.x - self.radius > width or self.position.x + self.radius < 0
+    return self.position.x - self.radius >= width or self.position.x + self.radius <= 0
 end
 

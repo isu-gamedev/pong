@@ -34,8 +34,9 @@ end
 
 function Paddle:checkBounds()
     local upperBound = height - self.height
-    local bottomBound = 0
-    self.position.y = math.max(bottomBound, math.min(self.position.y, upperBound))
+    local lowerBound = 0
+
+    self.position.y = math.max(lowerBound, math.min(self.position.y, upperBound))
 end
 
 function Paddle:moveUp()
