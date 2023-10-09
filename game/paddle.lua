@@ -3,20 +3,14 @@ Paddle.__index = Paddle
 
 setmetatable(Paddle, Mover)
 
-PaddleDirection = {
-    UP = 1,
-    DOWN = 2
-}
-
-function Paddle:create(position, speed, width, height, miny, maxy)
+function Paddle:create(position, speed, width, height)
     local paddle = Mover:create(position, Vector:create(0, speed))
     setmetatable(paddle, Paddle)
 
     paddle.width = width
     paddle.height = height
-    paddle.miny = miny
-    paddle.maxy = maxy
-    paddle.direction = nil
+    paddle.up = false
+    paddle.down = false
 
     return paddle
 end
@@ -26,9 +20,9 @@ function Paddle:draw()
 end
 
 function Paddle:update(dt)
-    if self.direction == PaddleDirection.UP then
+    if self.up then
         self:applyForce(self.velocity * -dt)
-    elseif self.direction == PaddleDirection.DOWN then
+    elseif self.down then
         self:applyForce(self.velocity * dt)
     end
 
@@ -36,24 +30,27 @@ function Paddle:update(dt)
 end
 
 function Paddle:isMoving()
-    return self.direction == PaddleDirection.UP or self.direction == PaddleDirection.DOWN
+    return self.up or self.down
 end
 
 function Paddle:moveUp()
-    self.direction = PaddleDirection.UP
+    self.up = true
+    self.down = false
 end
 
 function Paddle:moveDown()
-    self.direction = PaddleDirection.DOWN
+    self.up = false
+    self.down = true
 end
 
 function Paddle:stop()
-    self.direction = nil
+    self.up = false
+    self.down = false
 end
 
 function Paddle:checkBounds()
-    local upperBound = self.maxy - self.height
-    local bottomBound = self.miny
+    local upperBound = height - self.height
+    local bottomBound = 0
 
     if self.position.y >= upperBound then
         self.position.y = upperBound

@@ -1,27 +1,35 @@
 Utils = {}
 Utils.__index = Utils
 
-function Utils.ballIntersect(ball, rect, force)
+IntersectionDirection = {
+    TOP = 1,
+    RIGHT = 2,
+    BOTTOM = 3,
+    LEFT = 4
+}
+
+function Utils.ballIntersect(ball, rectBbox, force)
     local point = nil
-    local rectBbox = rect:bbox()
-    local nx, ny = force.x, force.y
+    local nx = force.x
+    local ny = force.y
 
     if nx < 0 then
         point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + nx, ball.position.y + ny, rectBbox.right + ball.radius,
-            rectBbox.top - ball.radius, rectBbox.right + ball.radius, rectBbox.bottom + ball.radius, 'right')
+            rectBbox.top - ball.radius, rectBbox.right + ball.radius, rectBbox.bottom + ball.radius, IntersectionDirection.RIGHT)
     elseif nx > 0 then
         point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + nx, ball.position.y + ny, rectBbox.left - ball.radius,
-            rectBbox.top - ball.radius, rectBbox.left - ball.radius, rectBbox.bottom + ball.radius, 'left')
+            rectBbox.top - ball.radius, rectBbox.left - ball.radius, rectBbox.bottom + ball.radius, IntersectionDirection.LEFT)
     end
 
     if point == nil then
         if ny < 0 then
             point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + nx, ball.position.y + ny,
                 rectBbox.left - ball.radius, rectBbox.bottom + ball.radius, rectBbox.right + ball.radius, rectBbox.bottom + ball.radius,
-                'bottom')
+                IntersectionDirection.BOTTOM)
         elseif ny > 0 then
             point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + nx, ball.position.y + ny,
-                rectBbox.left - ball.radius, rectBbox.top - ball.radius, rectBbox.right + ball.radius, rectBbox.top - ball.radius, 'top')
+                rectBbox.left - ball.radius, rectBbox.top - ball.radius, rectBbox.right + ball.radius, rectBbox.top - ball.radius,
+                IntersectionDirection.TOP)
         end
     end
 
