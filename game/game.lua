@@ -20,9 +20,14 @@ PlayerSide = {
     RIGHT = 2
 }
 
-function Game:create()
+function Game:create(isPlayingWithAi)
     local game = {}
     setmetatable(game, Game)
+
+    local ballPosition = self:getInitialBallPosition()
+    local ballVelocity = self:getInitialBallVelocity()
+
+    game.ball = Ball:create(ballPosition, ballVelocity, GameConfig.Defaults.ballRadius, GameConfig.Defaults.ballFootprintCount)
 
     local paddleX = 0
     local paddleY = height / 2 - GameConfig.Defaults.paddleHeight / 2
@@ -32,20 +37,16 @@ function Game:create()
         GameConfig.Defaults.paddleSpeed, GameConfig.Defaults.paddleWidth, GameConfig.Defaults.paddleHeight)
 
     game.leftPlayer = Player:create(leftPaddle)
-    game.rightPlayer = Player:create(rightPaddle)
+    game.rightPlayer = isPlayingWithAi and AiPlayer:create(rightPaddle, ballPosition.x) or Player:create(rightPaddle)
 
-    local ballPosition = self:getInitialBallPosition()
-    local ballVelocity = self:getInitialBallVelocity()
-
-    game.ball = Ball:create(ballPosition, ballVelocity, GameConfig.Defaults.ballRadius, GameConfig.Defaults.ballFootprintCount)
-
-    game.firstHit = false
+    game.isFirstHit = false
+    game.isPlayingWithAi = isPlayingWithAi
 
     return game
 end
 
 function Game:getInitialBallPosition(lastScorerSide)
-    lastScorerSide = lastScorerSide or nil
+    lastScorerSide = lastScorerSide or PlayerSide.LEFT
 
     local x = 0 - GameConfig.Defaults.ballRadius
     local y = love.math.random(height / 6, height - height / 6)
@@ -57,7 +58,7 @@ function Game:getInitialBallPosition(lastScorerSide)
 end
 
 function Game:getInitialBallVelocity(lastScorerSide)
-    lastScorerSide = lastScorerSide or nil
+    lastScorerSide = lastScorerSide or PlayerSide.LEFT
 
     local direction = 1
     if lastScorerSide == PlayerSide.RIGHT then
@@ -89,12 +90,17 @@ end
 
 function Game:update(dt)
     self.leftPlayer:update(dt)
-    self.rightPlayer:update(dt)
+
+    if self.isPlayingWithAi then
+        self.rightPlayer:update(dt, self.ball)
+    else
+        self.rightPlayer:update(dt)
+    end
 
     self:checkBallCollisions(dt)
     self.ball:update(dt)
 
-    self:checkGoal()
+    self:checkScore()
 end
 
 function Game:keypressed(key)
@@ -102,10 +108,14 @@ function Game:keypressed(key)
         self.leftPlayer:moveUp()
     elseif key == 's' then
         self.leftPlayer:moveDown()
-    elseif key == 'up' then
-        self.rightPlayer:moveUp()
-    elseif key == 'down' then
-        self.rightPlayer:moveDown()
+    end
+
+    if not self.isPlayingWithAi then
+        if key == 'up' then
+            self.rightPlayer:moveUp()
+        elseif key == 'down' then
+            self.rightPlayer:moveDown()
+        end
     end
 end
 
@@ -124,11 +134,9 @@ function Game:checkBallAndPaddleCollision(dt)
     local paddleBBox = paddle:getBBox()
 
     local point = Utils.ballIntersect(self.ball, paddleBBox, self.ball.velocity * dt)
-
     if point ~= nil then
         if point.direction == IntersectionDirection.LEFT or point.direction == IntersectionDirection.RIGHT then
-            local paddleCenter = paddleBBox.top + paddleBBox.height / 2
-            local centerOffset = math.abs((point.y - paddleCenter) / (paddleBBox.height / 2) * GameConfig.Defaults.ballBounceAngle)
+            local centerOffset = math.abs((point.y - paddleBBox.center) / (paddleBBox.height / 2) * GameConfig.Defaults.ballBounceAngle)
             local bounceAngle = math.rad(centerOffset)
             -- -- local angle = math.rad(GameConfig.Defaults.bounceAngle * (2 * (point.y - paddle:bbox().top) / paddle.height - 1))
             self.ball:horizontalBounce(bounceAngle)
@@ -136,14 +144,14 @@ function Game:checkBallAndPaddleCollision(dt)
             self.ball:verticalBounce()
         end
 
-        if not self.firstHit then
+        if not self.isFirstHit then
             self.ball.velocity:mul(GameConfig.Defaults.ballFirstHitMultiplier)
-            self.firstHit = true
+            self.isFirstHit = true
         end
     end
 end
 
-function Game:checkGoal()
+function Game:checkScore()
     if self.ball:isOutOfBounds() then
         local ballDirection = self.ball:getDirection()
         local lastScorerSide = nil
@@ -159,6 +167,6 @@ function Game:checkGoal()
         self.ball.position = self:getInitialBallPosition(lastScorerSide)
         self.ball.velocity = self:getInitialBallVelocity(lastScorerSide)
 
-        self.firstHit = false
+        self.isFirstHit = false
     end
 end

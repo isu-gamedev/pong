@@ -4,7 +4,7 @@ function love.load()
     width = love.graphics.getWidth()
     height = love.graphics.getHeight()
 
-    game = Game:create()
+    game = Game:create(true)
 end
 
 function love.draw()

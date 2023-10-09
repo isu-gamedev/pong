@@ -57,6 +57,7 @@ function Paddle:getBBox()
         bottom = self.position.y + self.height,
         left = self.position.x,
         width = self.width,
-        height = self.height
+        height = self.height,
+        center = self.position.y + self.height / 2
     }
 end
