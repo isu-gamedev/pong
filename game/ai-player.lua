@@ -62,7 +62,6 @@ function AiPlayer:predict(ball, dt)
         end
 
         if self.prediction ~= nil then
-            local norm = ball.velocity:norm()
             local centerOffset = love.math.random(paddleBBox.height / 2, paddleBBox.height / 2)
 
             self.prediction.dx = ballVelocityNorm.x
