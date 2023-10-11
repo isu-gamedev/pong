@@ -1,5 +1,3 @@
-require "menu.menu-item"
-
 Menu = {}
 Menu.__index = Menu
 
@@ -17,6 +15,10 @@ function Menu:create(title, items)
 end
 
 function Menu:drawMenu()
+    local r, g, b, a = love.graphics.getColor()
+    love.graphics.setColor(0,0,0,0.7)
+    love.graphics.rectangle("fill", 0, 0, width, height)
+    love.graphics.setColor(r, g, b, a)
     love.graphics.printf(self.title,self.titleFont, 0, 30, width, "center")
     self:drawItems()
 end
@@ -53,9 +55,9 @@ function Menu:keypressed(key, scancode)
         if self.chosenItem < #self.items then
             self.chosenItem = self.chosenItem + 1         
         end
-    elseif key == "space" then
+    elseif key == "space" or key =="return" then
         local chosenItem = self.items[self.chosenItem]
-        return {chosenItem.func, chosenItem.args}
+        return chosenItem.func, chosenItem.args
     end
 end
 

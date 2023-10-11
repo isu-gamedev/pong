@@ -42,11 +42,10 @@ function  MainMenu:chooseMode(mode)
 end
 
 function MainMenu:keypressed(key)
-    local ret = self.currMenu:keypressed(key)
-    if not ret then
+    local func, args = self.currMenu:keypressed(key)
+    if not func then
         return nil
     end
-    local func, args = unpack(ret)
     return func(unpack(args))
 end
 
