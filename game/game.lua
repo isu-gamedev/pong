@@ -139,8 +139,17 @@ function Game:keypressed(key)
 end
 
 function Game:keyreleased(key)
-    self.leftPlayer:stop()
-    self.rightPlayer:stop()
+    local leftUp = self.leftPlayer:isMovingUp() and key == GameConfig.Controls.Players.Left.UP
+    local leftDown = self.leftPlayer:isMovingDown() and key == GameConfig.Controls.Players.Left.DOWN
+
+    local rightUp = self.rightPlayer:isMovingUp() and key == GameConfig.Controls.Players.Right.UP
+    local rightDown = self.rightPlayer:isMovingDown() and key == GameConfig.Controls.Players.Right.DOWN
+
+    if leftUp or leftDown then
+        self.leftPlayer:stop()        
+    elseif rightUp or rightDown then
+        self.rightPlayer:stop()
+    end
 end
 
 function Game:checkBallCollisions(dt)
