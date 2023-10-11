@@ -23,29 +23,25 @@ function AiPlayer:update(dt, ball)
 end
 
 function AiPlayer:isBallComming(ball)
-    local ballDirection = ball:getDirection()
     local paddleBBox = self.paddle:getBBox()
-
-    return not (ball.position.x < paddleBBox.left and ballDirection == BallDirection.LEFT) and
-               not (ball.position.x > paddleBBox.right and ballDirection == BallDirection.RIGHT)
+    return not (ball.position.x < paddleBBox.left and ball:isMovingLeft()) and not (ball.position.x > paddleBBox.right and ball:isMovingRight())
 end
 
 function AiPlayer:predict(ball, dt)
     local ballVelocityNorm = ball.velocity:norm()
     local paddleBBox = self.paddle:getBBox()
 
-    local needToPredict = not (self.prediction ~= nil and self.prediction.dx * ballVelocityNorm.x > 0 and self.prediction.dy * ballVelocityNorm.y > 0)
+    local needToPredict = not (self.prediction and self.prediction.dx * ballVelocityNorm.x > 0 and self.prediction.dy * ballVelocityNorm.y > 0)
 
     if needToPredict then
         local point = Utils.ballIntersect(ball, {
             left = paddleBBox.left,
             right = paddleBBox.right,
-            -- HINT: Поиск пересечения со всем полем
             top = -10000,
             bottom = 10000
         }, ball.velocity)
 
-        if point ~= nil then
+        if point then
             local upperBound = height + paddleBBox.height - ball.radius
             local lowerBound = 0 + ball.radius
 
@@ -61,8 +57,8 @@ function AiPlayer:predict(ball, dt)
             self.prediction = nil
         end
 
-        if self.prediction ~= nil then
-            local centerOffset = love.math.random(paddleBBox.height / 2, paddleBBox.height / 2)
+        if self.prediction then
+            local centerOffset = love.math.random(-paddleBBox.height / 2, paddleBBox.height / 2)
 
             self.prediction.dx = ballVelocityNorm.x
             self.prediction.dy = ballVelocityNorm.y
@@ -70,8 +66,7 @@ function AiPlayer:predict(ball, dt)
         end
     end
 
-    if self.prediction ~= nil then
-        -- HINT: +-5 погрешность,иначе будет drum and bass
+    if self.prediction then
         if self.prediction.y < paddleBBox.center - 5 then
             self:moveUp()
         elseif self.prediction.y > paddleBBox.center + 5 then

@@ -10,12 +10,12 @@ GameState = {
 function love.load()
     width = love.graphics.getWidth()
     height = love.graphics.getHeight()
+  
     pauseMenu = Menu:create("Pause", 
                             {MenuItem:create("Continue", function() gameState = GameState.GAME end),
                             MenuItem:create("To menu", function() menu = createMenu() end),
                             MenuItem:create("Quit", love.event.quit, {0})})
     menu = createMenu()
-
 end
 
 function love.draw()
@@ -48,7 +48,7 @@ function love.keypressed(key)
             return
         end
         -- TODO: Разная сложность в зависимости от выбора
-        game = createGame(mode ~= MainMenu.mode.PvP)
+        game = createGame({ vsAi = mode ~= MainMenu.mode.PvP })
     elseif gameState == GameState.PAUSED then
         local func = pauseMenu:keypressed(key)
         if func then
@@ -63,10 +63,9 @@ function love.keyreleased(key)
     end
 end
 
-function createGame(isPlayingVsAi)
+function createGame(settings)
     gameState = GameState.GAME
-    -- HINT: Флаг на игру с гигачадом
-    return Game:create(isPlayingVsAi)
+    return Game:create(settings)
 end
 
 function createMenu()

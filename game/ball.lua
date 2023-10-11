@@ -2,10 +2,6 @@ Ball = {}
 Ball.__index = Ball
 
 setmetatable(Ball, Mover)
-BallDirection = {
-    LEFT = 1,
-    RIGHT = 2
-}
 
 function Ball:create(position, velocity, radius, footprintCount)
     local ball = Mover:create(position, velocity)
@@ -76,8 +72,12 @@ function Ball:verticalBounce()
     self.velocity.y = -self.velocity.y
 end
 
-function Ball:getDirection()
-    return self.velocity.x < 0 and BallDirection.LEFT or BallDirection.RIGHT
+function Ball:isMovingRight()
+    return self.velocity.x > 0
+end
+
+function Ball:isMovingLeft()
+    return self.velocity.x < 0
 end
 
 function Ball:isOutOfBounds()

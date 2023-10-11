@@ -22,7 +22,7 @@ function Utils.ballIntersect(ball, rectBBox, velocityDelta)
             rectBBox.top - ball.radius, rectBBox.left - ball.radius, rectBBox.bottom + ball.radius, IntersectionDirection.LEFT)
     end
 
-    if point == nil then
+    if not point then
         if dy < 0 then
             point = Utils.intersect(ball.position.x, ball.position.y, ball.position.x + dx, ball.position.y + dy, rectBBox.left - ball.radius,
                 rectBBox.bottom + ball.radius, rectBBox.right + ball.radius, rectBBox.bottom + ball.radius, IntersectionDirection.BOTTOM)

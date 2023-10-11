@@ -62,3 +62,11 @@ function Paddle:getBBox()
         center = self.position.y + self.height / 2
     }
 end
+
+function Paddle:isMovingUp()
+    return self.direction == PaddleDirection.UP
+end
+
+function Paddle:isMovingDown()
+    return self.direction == PaddleDirection.DOWN
+end

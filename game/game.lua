@@ -18,15 +18,13 @@ GameConfig = {
     },
 
     Controls = {
-        Players = {
-            Left = {
-                UP = 'w',
-                DOWN = 's'
-            },
-            Right = {
-                UP = 'up',
-                DOWN = 'down'
-            }
+        LeftPlayer = {
+            UP = 'w',
+            DOWN = 's'
+        },
+        RightPlayer = {
+            UP = 'up',
+            DOWN = 'down'
         }
     }
 }
@@ -36,7 +34,10 @@ PlayerSide = {
     RIGHT = 2
 }
 
-function Game:create(isPlayingVsAi)
+function Game:create(settings)
+    settings = settings or {}
+    settings.vsAi = settings.vsAi or false
+
     local game = {}
     setmetatable(game, Game)
 
@@ -50,14 +51,14 @@ function Game:create(isPlayingVsAi)
         GameConfig.Defaults.Paddle.WIDTH, GameConfig.Defaults.Paddle.HEIGHT)
 
     game.leftPlayer = Player:create(leftPaddle)
-    game.rightPlayer = isPlayingVsAi and AiPlayer:create(rightPaddle) or Player:create(rightPaddle)
+    game.rightPlayer = settings.vsAi and AiPlayer:create(rightPaddle) or Player:create(rightPaddle)
 
     local ballPosition = self:getInitialBallPosition()
     local ballVelocity = self:getInitialBallVelocity()
 
     game.ball = Ball:create(ballPosition, ballVelocity, GameConfig.Defaults.Ball.RADIUS, GameConfig.Defaults.Ball.FOOTPRINT_COUNT)
 
-    game.isPlayingVsAi = isPlayingVsAi
+    game.settings = settings
     game.isFirstHit = false
 
     return game
@@ -111,7 +112,7 @@ end
 function Game:update(dt)
     self.leftPlayer:update(dt)
 
-    if self.isPlayingVsAi then
+    if self.settings.vsAi then
         self.rightPlayer:update(dt, self.ball)
     else
         self.rightPlayer:update(dt)
@@ -123,43 +124,50 @@ function Game:update(dt)
 end
 
 function Game:keypressed(key)
-    if key == GameConfig.Controls.Players.Left.UP then
+    if key == GameConfig.Controls.LeftPlayer.UP then
         self.leftPlayer:moveUp()
-    elseif key == GameConfig.Controls.Players.Left.DOWN then
+    elseif key == GameConfig.Controls.LeftPlayer.DOWN then
         self.leftPlayer:moveDown()
     end
 
-    if not self.isPlayingVsAi then
-        if key == GameConfig.Controls.Players.Right.UP then
+    if not self.settings.vsAi then
+        if key == GameConfig.Controls.RightPlayer.UP then
             self.rightPlayer:moveUp()
-        elseif key == GameConfig.Controls.Players.Right.DOWN then
+        elseif key == GameConfig.Controls.RightPlayer.DOWN then
             self.rightPlayer:moveDown()
         end
     end
 end
 
 function Game:keyreleased(key)
-    self.leftPlayer:stop()
-    self.rightPlayer:stop()
+    local leftUp = self.leftPlayer:isMovingUp() and key == GameConfig.Controls.LeftPlayer.UP
+    local leftDown = self.leftPlayer:isMovingDown() and key == GameConfig.Controls.LeftPlayer.DOWN
+
+    local rightUp = self.rightPlayer:isMovingUp() and key == GameConfig.Controls.RightPlayer.UP
+    local rightDown = self.rightPlayer:isMovingDown() and key == GameConfig.Controls.RightPlayer.DOWN
+
+    if leftUp or leftDown then
+        self.leftPlayer:stop()
+    elseif (rightUp or rightDown) and not self.settings.vsAi then
+        self.rightPlayer:stop()
+    end
 end
 
 function Game:checkBallCollisions(dt)
-    self:checkBallAndPaddleCollision(dt)
+    self:checkBallAndPlayerCollision(dt)
 end
 
-function Game:checkBallAndPaddleCollision(dt)
-    local ballDirection = self.ball:getDirection()
+function Game:checkBallAndPlayerCollision(dt)
+    local player = self.ball:isMovingLeft() and self.leftPlayer or self.rightPlayer
+    local playerBBox = player:getBBox()
 
-    local paddle = ballDirection == BallDirection.LEFT and self.leftPlayer.paddle or self.rightPlayer.paddle
-    local paddleBBox = paddle:getBBox()
+    local point = Utils.ballIntersect(self.ball, playerBBox, self.ball.velocity * dt)
 
-    local point = Utils.ballIntersect(self.ball, paddleBBox, self.ball.velocity * dt)
-
-    if point ~= nil then
+    if point then
         if point.direction == IntersectionDirection.LEFT or point.direction == IntersectionDirection.RIGHT then
-            local centerOffset = math.abs((point.y - paddleBBox.center) / (paddleBBox.height / 2) * GameConfig.Defaults.Ball.MAX_BOUNCE_ANGLE)
+            local centerOffset = math.abs((point.y - playerBBox.center) / (playerBBox.height / 2) * GameConfig.Defaults.Ball.MAX_BOUNCE_ANGLE)
             local bounceAngle = math.rad(centerOffset)
-            -- -- local angle = math.rad(GameConfig.Defaults.bounceAngle * (2 * (point.y - paddle:bbox().top) / paddle.height - 1))
+            -- local angle = math.rad(GameConfig.Defaults.bounceAngle * (2 * (point.y - paddle:bbox().top) / paddle.height - 1))
             self.ball:horizontalBounce(bounceAngle)
         elseif point.direction == IntersectionDirection.TOP or point.direction == IntersectionDirection.BOTTOM then
             self.ball:verticalBounce()
@@ -174,13 +182,12 @@ end
 
 function Game:checkScore()
     if self.ball:isOutOfBounds() then
-        local ballDirection = self.ball:getDirection()
         local lastScorerSide = nil
 
-        if ballDirection == BallDirection.LEFT then
+        if self.ball:isMovingLeft() then
             lastScorerSide = PlayerSide.RIGHT
             self.rightPlayer:addScore()
-        elseif ballDirection == BallDirection.RIGHT then
+        elseif self.ball:isMovingRight() then
             lastScorerSide = PlayerSide.LEFT
             self.leftPlayer:addScore()
         end
