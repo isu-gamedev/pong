@@ -139,8 +139,15 @@ function Game:keypressed(key)
 end
 
 function Game:keyreleased(key)
-    self.leftPlayer:stop()
-    self.rightPlayer:stop()
+    local leftUp = key == GameConfig.Controls.Players.Left.UP and self.leftPlayer.paddle.direction == PaddleDirection.UP
+    local leftDown = key == GameConfig.Controls.Players.Left.DOWN and self.leftPlayer.paddle.direction == PaddleDirection.DOWN
+    local rightUp = key == GameConfig.Controls.Players.Right.UP and self.rightPlayer.paddle.direction == PaddleDirection.UP
+    local rightDown = key == GameConfig.Controls.Players.Right.DOWN and self.rightPlayer.paddle.direction == PaddleDirection.DOWN
+    if leftUp or leftDown then
+        self.leftPlayer:stop()        
+    elseif rightUp or rightDown then
+        self.rightPlayer:stop()
+    end
 end
 
 function Game:checkBallCollisions(dt)
