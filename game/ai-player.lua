@@ -23,26 +23,26 @@ function AiPlayer:update(dt, ball)
 end
 
 function AiPlayer:isBallComming(ball)
-    local paddleBBox = self.paddle:getBBox()
-    return not (ball.position.x < paddleBBox.left and ball:isMovingLeft()) and not (ball.position.x > paddleBBox.right and ball:isMovingRight())
+    local bbox = self:getBBox()
+    return not (ball.position.x < bbox.left and ball:isMovingLeft()) and not (ball.position.x > bbox.right and ball:isMovingRight())
 end
 
 function AiPlayer:predict(ball, dt)
     local ballVelocityNorm = ball.velocity:norm()
-    local paddleBBox = self.paddle:getBBox()
+    local bbox = self:getBBox()
 
     local needToPredict = not (self.prediction and self.prediction.dx * ballVelocityNorm.x > 0 and self.prediction.dy * ballVelocityNorm.y > 0)
 
     if needToPredict then
         local point = Utils.ballIntersect(ball, {
-            left = paddleBBox.left,
-            right = paddleBBox.right,
+            left = bbox.left,
+            right = bbox.right,
             top = -10000,
             bottom = 10000
         }, ball.velocity)
 
         if point then
-            local upperBound = height + paddleBBox.height - ball.radius
+            local upperBound = height + bbox.height - ball.radius
             local lowerBound = 0 + ball.radius
 
             while point.y < lowerBound or point.y > upperBound do
@@ -58,7 +58,7 @@ function AiPlayer:predict(ball, dt)
         end
 
         if self.prediction then
-            local centerOffset = love.math.random(-paddleBBox.height / 2, paddleBBox.height / 2)
+            local centerOffset = love.math.random(-bbox.height / 2, bbox.height / 2)
 
             self.prediction.dx = ballVelocityNorm.x
             self.prediction.dy = ballVelocityNorm.y
@@ -67,9 +67,9 @@ function AiPlayer:predict(ball, dt)
     end
 
     if self.prediction then
-        if self.prediction.y < paddleBBox.center - 5 then
+        if self.prediction.y < bbox.center - 5 then
             self:moveUp()
-        elseif self.prediction.y > paddleBBox.center + 5 then
+        elseif self.prediction.y > bbox.center + 5 then
             self:moveDown()
         else
             self:stop()
@@ -79,11 +79,11 @@ end
 
 function AiPlayer:moveToCenter()
     local centerY = height / 2
-    local paddleBBox = self.paddle:getBBox()
+    local bbox = self:getBBox()
 
-    if paddleBBox.center < centerY - 5 then
+    if bbox.center < centerY - 5 then
         self.paddle:moveDown()
-    elseif paddleBBox.center > centerY + 5 then
+    elseif bbox.center > centerY + 5 then
         self.paddle:moveUp()
     else
         self:stop()

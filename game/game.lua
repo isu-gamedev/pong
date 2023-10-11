@@ -64,24 +64,24 @@ function Game:create(settings)
     return game
 end
 
-function Game:getInitialBallPosition(lastScorerSide)
-    lastScorerSide = lastScorerSide or PlayerSide.LEFT
+function Game:getInitialBallPosition(side)
+    side = side or PlayerSide.LEFT
 
     local x = 0 - GameConfig.Defaults.Ball.RADIUS + 1
     local y = love.math.random(height / 6, height - height / 6)
 
-    if lastScorerSide == PlayerSide.RIGHT then
+    if side == PlayerSide.RIGHT then
         x = width + GameConfig.Defaults.Ball.RADIUS - 1
     end
 
     return Vector:create(x, y)
 end
 
-function Game:getInitialBallVelocity(lastScorerSide)
-    lastScorerSide = lastScorerSide or PlayerSide.LEFT
+function Game:getInitialBallVelocity(side)
+    side = side or PlayerSide.LEFT
 
     local direction = 1
-    if lastScorerSide == PlayerSide.RIGHT then
+    if side == PlayerSide.RIGHT then
         direction = -1
     end
 
@@ -158,7 +158,7 @@ function Game:checkBallCollisions(dt)
 end
 
 function Game:checkBallAndPlayerCollision(dt)
-    local player = self.ball:isMovingLeft() and self.leftPlayer or self.rightPlayer
+    local player = self:getAttackingSide() == PlayerSide.RIGHT and self.leftPlayer or self.rightPlayer
     local playerBBox = player:getBBox()
 
     local point = Utils.ballIntersect(self.ball, playerBBox, self.ball.velocity * dt)
@@ -182,19 +182,24 @@ end
 
 function Game:checkScore()
     if self.ball:isOutOfBounds() then
-        local lastScorerSide = nil
+        local attackingSide = self:getAttackingSide()
 
-        if self.ball:isMovingLeft() then
-            lastScorerSide = PlayerSide.RIGHT
+        if attackingSide == PlayerSide.RIGHT then
             self.rightPlayer:addScore()
-        elseif self.ball:isMovingRight() then
-            lastScorerSide = PlayerSide.LEFT
+        elseif attackingSide == PlayerSide.LEFT then
             self.leftPlayer:addScore()
         end
 
-        self.ball.position = self:getInitialBallPosition(lastScorerSide)
-        self.ball.velocity = self:getInitialBallVelocity(lastScorerSide)
+        self.ball.position = self:getInitialBallPosition(attackingSide)
+        self.ball.velocity = self:getInitialBallVelocity(attackingSide)
 
         self.isFirstHit = false
     end
+end
+
+function Game:getAttackingSide()
+    if self.ball:isMovingLeft() then
+        return PlayerSide.RIGHT
+    end
+    return PlayerSide.LEFT
 end
