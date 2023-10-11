@@ -5,7 +5,7 @@ function love.load()
     height = love.graphics.getHeight()
 
     -- HINT: Флаг на игру с гигачадом
-    game = Game:create(false)
+    game = Game:create(true)
 end
 
 function love.draw()
