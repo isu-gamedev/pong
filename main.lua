@@ -3,24 +3,25 @@ require('menu')
 
 GameState = {
     MAIN_MENU = 1,
-    GAME = 2, 
+    GAME = 2,
     PAUSED = 3
 }
 
 function love.load()
     width = love.graphics.getWidth()
     height = love.graphics.getHeight()
-  
-    pauseMenu = Menu:create("Pause", 
-                            {MenuItem:create("Continue", function() gameState = GameState.GAME end),
-                            MenuItem:create("To menu", function() menu = createMenu() end),
-                            MenuItem:create("Quit", love.event.quit, {0})})
+
+    pauseMenu = Menu:create('Pause', {MenuItem:create('Continue', function()
+        gameState = GameState.GAME
+    end), MenuItem:create('To menu', function()
+        menu = createMenu()
+    end), MenuItem:create('Quit', love.event.quit, {0})})
     menu = createMenu()
 end
 
 function love.draw()
     if gameState == GameState.GAME then
-        game:draw()        
+        game:draw()
     elseif gameState == GameState.PAUSED then
         game:draw()
         pauseMenu:drawMenu()
@@ -37,7 +38,7 @@ end
 
 function love.keypressed(key)
     if gameState == GameState.GAME then
-        if key == "escape" then
+        if key == 'escape' then
             gameState = GameState.PAUSED
             return
         end
@@ -48,7 +49,9 @@ function love.keypressed(key)
             return
         end
         -- TODO: Разная сложность в зависимости от выбора
-        game = createGame({ vsAi = mode ~= MainMenu.mode.PvP })
+        game = createGame({
+            vsAi = mode ~= MainMenu.mode.PvP
+        })
     elseif gameState == GameState.PAUSED then
         local func = pauseMenu:keypressed(key)
         if func then
@@ -59,7 +62,7 @@ end
 
 function love.keyreleased(key)
     if gameState == GameState.GAME then
-        game:keyreleased(key)        
+        game:keyreleased(key)
     end
 end
 
