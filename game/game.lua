@@ -34,9 +34,16 @@ PlayerSide = {
     RIGHT = 2
 }
 
+GameDifficulty = {
+    EASY = 1,
+    MEDIUM = 2,
+    HARD = 3
+}
+
 function Game:create(settings)
     settings = settings or {}
     settings.vsAi = settings.vsAi or false
+    settings.difficulty = settings.difficulty or GameDifficulty.MEDIUM
 
     local game = {}
     setmetatable(game, Game)
@@ -51,7 +58,7 @@ function Game:create(settings)
         GameConfig.Defaults.Paddle.WIDTH, GameConfig.Defaults.Paddle.HEIGHT)
 
     game.leftPlayer = Player:create(leftPaddle)
-    game.rightPlayer = settings.vsAi and AiPlayer:create(rightPaddle) or Player:create(rightPaddle)
+    game.rightPlayer = settings.vsAi and AiPlayer:create(rightPaddle, settings.difficulty) or Player:create(rightPaddle)
 
     local ballPosition = self:getInitialBallPosition()
     local ballVelocity = self:getInitialBallVelocity()

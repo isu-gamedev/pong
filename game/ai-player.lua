@@ -3,11 +3,24 @@ AiPlayer.__index = AiPlayer
 
 setmetatable(AiPlayer, Player)
 
-function AiPlayer:create(paddle)
+local difficultyLevels = {{
+    reactionTimeout = 2,
+    hitError = 0.4
+}, {
+    reactionTimeout = 1.5,
+    hitError = 0.2
+}, {
+    reactionTimeout = 0,
+    hitError = 0
+}}
+
+function AiPlayer:create(paddle, difficultyLevel)
     local player = Player:create(paddle)
     setmetatable(player, AiPlayer)
 
+    player.difficulty = difficultyLevels[difficultyLevel]
     player.prediction = nil
+    player.predictionSince = 0
 
     return player
 end
@@ -31,9 +44,12 @@ function AiPlayer:predict(ball, dt)
     local ballVelocityNorm = ball.velocity:norm()
     local bbox = self:getBBox()
 
-    local needToPredict = not (self.prediction and self.prediction.dx * ballVelocityNorm.x > 0 and self.prediction.dy * ballVelocityNorm.y > 0)
+    local needToPredict = self.predictionSince > self.difficulty.reactionTimeout and
+                              (not self.prediction or self.prediction.norm.x * ballVelocityNorm.x < 0 or self.prediction.norm.y * ballVelocityNorm.y < 0)
 
-    if needToPredict then
+    if not needToPredict then
+        self.predictionSince = self.predictionSince + dt
+    else
         local point = Utils.ballIntersect(ball, {
             left = bbox.left,
             right = bbox.right,
@@ -43,7 +59,7 @@ function AiPlayer:predict(ball, dt)
 
         if point then
             local upperBound = height + bbox.height - ball.radius
-            local lowerBound = 0 + ball.radius
+            local lowerBound = ball.radius
 
             while point.y < lowerBound or point.y > upperBound do
                 if point.y < lowerBound then
@@ -59,10 +75,11 @@ function AiPlayer:predict(ball, dt)
 
         if self.prediction then
             local centerOffset = love.math.random(-bbox.height / 2, bbox.height / 2)
+            local centerOffsetWithError = centerOffset + centerOffset * self.difficulty.hitError
 
-            self.prediction.dx = ballVelocityNorm.x
-            self.prediction.dy = ballVelocityNorm.y
-            self.prediction.y = self.prediction.y + centerOffset
+            self.prediction.norm = ballVelocityNorm
+            self.prediction.y = self.prediction.y + centerOffsetWithError
+            self.predictionSince = 0
         end
     end
 
@@ -74,6 +91,8 @@ function AiPlayer:predict(ball, dt)
         else
             self:stop()
         end
+    else
+        self:moveToCenter()
     end
 end
 

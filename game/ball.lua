@@ -13,7 +13,7 @@ function Ball:create(position, velocity, radius, footprintCount)
     ball.footprints = {}
     ball.footprintCount = footprintCount
     ball.footprintTimeout = footprintTimeout
-    ball.footprintTimeoutLeft = footprintTimeout
+    ball.footprintSince = footprintTimeout
 
     return ball
 end
@@ -40,13 +40,13 @@ function Ball:drawFootprints()
 end
 
 function Ball:addFootprint(dt)
-    self.footprintTimeoutLeft = self.footprintTimeoutLeft - dt
-    if self.footprintTimeoutLeft <= 0 then
+    self.footprintSince = self.footprintSince - dt
+    if self.footprintSince <= 0 then
         table.insert(self.footprints, {
             x = self.position.x,
             y = self.position.y
         })
-        self.footprintTimeoutLeft = self.footprintTimeout
+        self.footprintSince = self.footprintTimeout
     end
 
     while #self.footprints > self.footprintCount do
