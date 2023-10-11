@@ -42,3 +42,7 @@ end
 function Player:isMovingDown()
     return self.paddle:isMovingDown()
 end
+
+function Player:getBBox()
+    return self.paddle:getBBox()
+end
