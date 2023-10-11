@@ -67,11 +67,11 @@ end
 function Game:getInitialBallPosition(lastScorerSide)
     lastScorerSide = lastScorerSide or PlayerSide.LEFT
 
-    local x = 0 - GameConfig.Defaults.Ball.RADIUS
+    local x = 0 - GameConfig.Defaults.Ball.RADIUS + 1
     local y = love.math.random(height / 6, height - height / 6)
 
     if lastScorerSide == PlayerSide.RIGHT then
-        x = width + GameConfig.Defaults.Ball.RADIUS
+        x = width + GameConfig.Defaults.Ball.RADIUS - 1
     end
 
     return Vector:create(x, y)
