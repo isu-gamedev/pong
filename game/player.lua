@@ -34,3 +34,11 @@ end
 function Player:addScore()
     self.score = self.score + 1
 end
+
+function Player:isMovingUp()
+    return self.paddle:isMovingUp()
+end
+
+function Player:isMovingDown()
+    return self.paddle:isMovingDown()
+end
