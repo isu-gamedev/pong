@@ -49,5 +49,5 @@ function MainMenu:keypressed(key)
 end
 
 function MainMenu:draw()
-    self.currMenu:drawMenu()
+    self.currMenu:draw()
 end

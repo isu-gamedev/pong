@@ -16,7 +16,7 @@ function Menu:create(title, items)
     return menu
 end
 
-function Menu:drawMenu()
+function Menu:draw()
     local r, g, b, a = love.graphics.getColor()
     love.graphics.setColor(0, 0, 0, 0.7)
     love.graphics.rectangle('fill', 0, 0, width, height)

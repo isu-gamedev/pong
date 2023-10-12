@@ -26,12 +26,12 @@ function love.draw()
         game:draw()
     elseif gameState == GameState.PAUSED then
         game:draw()
-        pauseMenu:drawMenu()
+        pauseMenu:draw()
     elseif gameState == GameState.MAIN_MENU then
         menu:draw()
     elseif gameState == GameState.GAME_OVER then
         game:draw()
-        gameOverMenu:drawMenu()
+        gameOverMenu:draw()
     end
 end
 
@@ -40,7 +40,7 @@ function love.update(dt)
         -- TODO: флаг на конец игры, что-то вроде game.isGameOver()
         local gameOver = true
         if gameOver then
-            -- HINT: нужна выигравшая сторона в качестве строки и счет каждого игрока
+            -- TODO: нужна выигравшая сторона в качестве строки и счет каждого игрока
             local winningSide = 'Right'
             local scoreLeft = 0
             local scoreRight = 420
