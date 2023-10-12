@@ -63,7 +63,7 @@ function love.keypressed(key)
         if not mode then
             return
         end
-        settings = {
+        local settings = {
             vsAi = mode ~= MainMenu.mode.PvP,
             difficulty = mode
         }
@@ -102,7 +102,7 @@ end
 function createGameOver(winningSide, scoreLeft, scoreRigth)
     gameState = GameState.GAME_OVER
     local title = winningSide .. ' player wins! Score: ' .. scoreLeft .. ':' .. scoreRigth
-    local gameOverMenu = Menu:create(title, {MenuItem:create('Play again', createGame, settings), MenuItem:create('To menu', function()
+    local gameOverMenu = Menu:create(title, {MenuItem:create('Play again', createGame, game.settings), MenuItem:create('To menu', function()
         menu = createMenu()
     end), MenuItem:create('Quit', love.event.quit, {0})})
     return gameOverMenu
