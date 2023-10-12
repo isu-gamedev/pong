@@ -37,14 +37,9 @@ end
 
 function love.update(dt)
     if gameState == GameState.GAME then
-        -- TODO: флаг на конец игры, что-то вроде game.isGameOver()
-        local gameOver = true
-        if gameOver then
-            -- TODO: нужна выигравшая сторона в качестве строки и счет каждого игрока
-            local winningSide = 'Right'
-            local scoreLeft = 0
-            local scoreRight = 420
-            gameOverMenu = createGameOver(winningSide, scoreLeft, scoreRight)
+        local winner = game:isOver()
+        if winner ~= nil then
+            gameOverMenu = createGameOver(winner.name, game.leftPlayer.score, game.rightPlayer.score)
             return
         end
         game:update(dt)

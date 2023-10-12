@@ -1,10 +1,11 @@
 Player = {}
 Player.__index = Player
 
-function Player:create(paddle)
+function Player:create(name, paddle)
     local player = {}
     setmetatable(player, Player)
 
+    player.name = name
     player.paddle = paddle
     player.score = 0
 

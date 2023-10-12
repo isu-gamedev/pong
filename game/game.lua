@@ -14,7 +14,8 @@ GameConfig = {
             FIRST_HIT_MULTIPLIER = 2,
             MAX_BOUNCE_ANGLE = 45,
             FOOTPRINT_COUNT = 20
-        }
+        },
+        MAX_SCORE = 5
     },
 
     Controls = {
@@ -57,8 +58,8 @@ function Game:create(settings)
     local rightPaddle = Paddle:create(Vector:create(width - paddleX - GameConfig.Defaults.Paddle.WIDTH, paddleY), GameConfig.Defaults.Paddle.SPEED,
         GameConfig.Defaults.Paddle.WIDTH, GameConfig.Defaults.Paddle.HEIGHT)
 
-    game.leftPlayer = Player:create(leftPaddle)
-    game.rightPlayer = settings.vsAi and AiPlayer:create(rightPaddle, settings.difficulty) or Player:create(rightPaddle)
+    game.leftPlayer = Player:create('Left', leftPaddle)
+    game.rightPlayer = settings.vsAi and AiPlayer:create('Right', rightPaddle, settings.difficulty) or Player:create('Right', rightPaddle)
 
     local ballPosition = self:getInitialBallPosition()
     local ballVelocity = self:getInitialBallVelocity()
@@ -67,6 +68,7 @@ function Game:create(settings)
 
     game.settings = settings
     game.isFirstHit = false
+    game.winner = nil
 
     return game
 end
@@ -209,4 +211,15 @@ function Game:getAttackingSide()
         return PlayerSide.RIGHT
     end
     return PlayerSide.LEFT
+end
+
+function Game:isOver()
+    local maxScore = GameConfig.Defaults.MAX_SCORE
+    local hasLeftWon = self.leftPlayer.score == maxScore
+    local hasRightWon = self.rightPlayer.score == maxScore
+
+    if hasLeftWon or hasRightWon then
+        return hasLeftWon and self.leftPlayer or self.rightPlayer
+    end
+    return nil
 end

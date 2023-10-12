@@ -14,8 +14,8 @@ local difficultyLevels = {{
     hitError = 0
 }}
 
-function AiPlayer:create(paddle, difficultyLevel)
-    local player = Player:create(paddle)
+function AiPlayer:create(name, paddle, difficultyLevel)
+    local player = Player:create(name, paddle)
     setmetatable(player, AiPlayer)
 
     player.difficulty = difficultyLevels[difficultyLevel]
