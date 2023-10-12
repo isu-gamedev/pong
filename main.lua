@@ -97,7 +97,9 @@ end
 function createGameOver(winningSide, scoreLeft, scoreRigth)
     gameState = GameState.GAME_OVER
     local title = winningSide .. ' player wins! Score: ' .. scoreLeft .. ':' .. scoreRigth
-    local gameOverMenu = Menu:create(title, {MenuItem:create('Play again', createGame, game.settings), MenuItem:create('To menu', function()
+    local gameOverMenu = Menu:create(title, {MenuItem:create('Play again', function()
+        game = createGame(game.settings)
+    end), MenuItem:create('To menu', function()
         menu = createMenu()
     end), MenuItem:create('Quit', love.event.quit, {0})})
     return gameOverMenu
