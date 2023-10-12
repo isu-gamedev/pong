@@ -4,7 +4,8 @@ require('menu')
 GameState = {
     MAIN_MENU = 1,
     GAME = 2,
-    PAUSED = 3
+    PAUSED = 3,
+    GAME_OVER = 4
 }
 
 function love.load()
@@ -16,6 +17,7 @@ function love.load()
     end), MenuItem:create('To menu', function()
         menu = createMenu()
     end), MenuItem:create('Quit', love.event.quit, {0})})
+
     menu = createMenu()
 end
 
@@ -27,11 +29,24 @@ function love.draw()
         pauseMenu:drawMenu()
     elseif gameState == GameState.MAIN_MENU then
         menu:draw()
+    elseif gameState == GameState.GAME_OVER then
+        game:draw()
+        gameOverMenu:drawMenu()
     end
 end
 
 function love.update(dt)
     if gameState == GameState.GAME then
+        -- TODO: флаг на конец игры, что-то вроде game.isGameOver()
+        local gameOver = true
+        if gameOver then
+            -- HINT: нужна выигравшая сторона в качестве строки и счет каждого игрока
+            local winningSide = 'Right'
+            local scoreLeft = 0
+            local scoreRight = 420
+            gameOverMenu = createGameOver(winningSide, scoreLeft, scoreRight)
+            return
+        end
         game:update(dt)
     end
 end
@@ -48,13 +63,18 @@ function love.keypressed(key)
         if not mode then
             return
         end
-        -- TODO: Разная сложность в зависимости от выбора
-        game = createGame({
+        settings = {
             vsAi = mode ~= MainMenu.mode.PvP,
             difficulty = mode
-        })
+        }
+        game = createGame(settings)
     elseif gameState == GameState.PAUSED then
         local func = pauseMenu:keypressed(key)
+        if func then
+            func()
+        end
+    elseif gameState == GameState.GAME_OVER then
+        local func = gameOverMenu:keypressed(key)
         if func then
             func()
         end
@@ -77,4 +97,13 @@ function createMenu()
     pauseMenu:revert() -- Сбрасываем меню паузы в дефолт
     gameState = GameState.MAIN_MENU
     return MainMenu:create()
+end
+
+function createGameOver(winningSide, scoreLeft, scoreRigth)
+    gameState = GameState.GAME_OVER
+    local title = winningSide .. ' player wins! Score: ' .. scoreLeft .. ':' .. scoreRigth
+    local gameOverMenu = Menu:create(title, {MenuItem:create('Play again', createGame, settings), MenuItem:create('To menu', function()
+        menu = createMenu()
+    end), MenuItem:create('Quit', love.event.quit, {0})})
+    return gameOverMenu
 end
