@@ -50,7 +50,8 @@ function love.keypressed(key)
         end
         -- TODO: Разная сложность в зависимости от выбора
         game = createGame({
-            vsAi = mode ~= MainMenu.mode.PvP
+            vsAi = mode ~= MainMenu.mode.PvP,
+            difficulty = mode
         })
     elseif gameState == GameState.PAUSED then
         local func = pauseMenu:keypressed(key)
