@@ -9,14 +9,17 @@ GameState = {
 }
 
 function love.load()
+    scale = 0.75
+    love.window.setMode(1920 * scale, 1080 * scale)
     width = love.graphics.getWidth()
     height = love.graphics.getHeight()
-
-    pauseMenu = Menu:create('Pause', {MenuItem:create('Continue', function()
+    pauseMenu = Menu:create('Menu', {MenuItem:create('Continue', function()
         gameState = GameState.GAME
-    end), MenuItem:create('To menu', function()
+    end, {}, love.graphics.newImage('assets/images/menu-item.png')), MenuItem:create('To menu', function()
         menu = createMenu()
-    end), MenuItem:create('Quit', love.event.quit, {0})})
+    end, {}, love.graphics.newImage('assets/images/menu-item.png')),
+                                     MenuItem:create('Quit', love.event.quit, {0}, love.graphics.newImage('assets/images/menu-item.png'))}, nil, nil,
+        love.graphics.newImage('assets/images/menu-background.png'))
 
     menu = createMenu()
 end
@@ -26,7 +29,7 @@ function love.draw()
         game:draw()
     elseif gameState == GameState.PAUSED then
         game:draw()
-        pauseMenu:draw()
+        pauseMenu:draw(false)
     elseif gameState == GameState.MAIN_MENU then
         menu:draw()
     elseif gameState == GameState.GAME_OVER then
@@ -96,11 +99,16 @@ end
 
 function createGameOver(winningSide, scoreLeft, scoreRigth)
     gameState = GameState.GAME_OVER
-    local title = winningSide .. ' player wins! Score: ' .. scoreLeft .. ':' .. scoreRigth
+    -- local title = winningSide .. ' player wins! Score: ' .. scoreLeft .. ':' .. scoreRigth
+    local title = 'You are loser'
+    local image = love.graphics.newImage('assets/images/menu-lost.png')
     local gameOverMenu = Menu:create(title, {MenuItem:create('Play again', function()
         game = createGame(game.settings)
-    end), MenuItem:create('To menu', function()
+    end, {}, image), MenuItem:create('To menu', function()
         menu = createMenu()
-    end), MenuItem:create('Quit', love.event.quit, {0})})
+    end, {}, image), MenuItem:create('Quit', love.event.quit, {0}, image)}, nil, 520 * scale)
+    gameOverMenu.titleHeight = 150 * scale
+    gameOverMenu.titleFont = love.graphics.newFont('assets/fonts/BrahmsGotischCyr.otf', 150 * scale)
+    gameOverMenu.titleColor = {211, 0, 0, 1}
     return gameOverMenu
 end
