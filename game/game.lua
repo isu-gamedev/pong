@@ -59,6 +59,7 @@ function Game:create(settings)
     settings = settings or {}
     settings.vsAi = settings.vsAi or false
     settings.difficulty = settings.difficulty or GameDifficulty.MEDIUM
+    settings.soundOn = settings.soundOn or false
 
     local game = {}
     setmetatable(game, Game)
@@ -230,7 +231,7 @@ function Game:checkBallAndPlayerCollision(dt)
             self.ball:verticalBounce()
         end
 
-        if not GlobalConfig.__DEV__ then
+        if not GlobalConfig.__DEV__ and self.settings.soundOn then
             self:playSound(self.hitSound)
         end
 
@@ -281,7 +282,7 @@ function Game:playSound(sound)
 end
 
 function Game:playBackgroundSound()
-    if love.audio.getActiveSourceCount() == 0 then
+    if love.audio.getActiveSourceCount() == 0 and self.settings.soundOn then
         self:playSound(self.backgroundSound)
     end
 end
