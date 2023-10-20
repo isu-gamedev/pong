@@ -11,7 +11,7 @@ function Menu:create(title, items)
     menu.y = (height - menu:getHeight()) / 2
     menu.x = (width - menu:getWidth()) / 2
     menu.chosenItem = 1
-    menu.titleFont = love.graphics.newFont('fonts/MartianMono.ttf', 32)
+    menu.titleFont = love.graphics.newFont('/assets/fonts/MartianMono.ttf', 32)
 
     return menu
 end

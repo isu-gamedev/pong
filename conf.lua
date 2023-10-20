@@ -1,5 +1,5 @@
 GlobalConfig = {
-    __DEV__ = true
+    __DEV__ = false
 }
 
 function love.conf(t)

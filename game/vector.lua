@@ -26,6 +26,9 @@ function Vector:__add(other)
 end
 
 function Vector:__sub(other)
+    if type(other) == 'number' then
+        return Vector:create(self.x - other, self.y - other)
+    end
     return Vector:create(self.x - other.x, self.y - other.y)
 end
 

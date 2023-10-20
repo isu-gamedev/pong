@@ -14,13 +14,14 @@ local difficultyLevels = {{
     hitError = 0
 }}
 
-function AiPlayer:create(name, paddle, difficultyLevel)
+function AiPlayer:create(name, paddle, difficultyLevel, isLeft)
     local player = Player:create(name, paddle)
     setmetatable(player, AiPlayer)
 
     player.difficulty = difficultyLevels[difficultyLevel]
     player.prediction = nil
     player.predictionSince = 0
+    player.isLeft = isLeft
 
     return player
 end
@@ -36,8 +37,9 @@ function AiPlayer:update(dt, ball)
 end
 
 function AiPlayer:isBallComming(ball)
-    local bbox = self:getBBox()
-    return not (ball.position.x < bbox.left and ball:isMovingLeft()) and not (ball.position.x > bbox.right and ball:isMovingRight())
+    return (self.isLeft and ball:isMovingLeft()) or (not self.isLeft and ball:isMovingRight())
+    -- local bbox = self:getBBox()
+    -- return not (ball.position.x < bbox.left and ball:isMovingLeft()) and not (ball.position.x > bbox.right and ball:isMovingRight())
 end
 
 function AiPlayer:predict(ball, dt)
@@ -59,7 +61,7 @@ function AiPlayer:predict(ball, dt)
 
         if point then
             local upperBound = height + bbox.height - ball.radius
-            local lowerBound = ball.radius
+            local lowerBound = self.paddle.minY + ball.radius
 
             while point.y < lowerBound or point.y > upperBound do
                 if point.y < lowerBound then

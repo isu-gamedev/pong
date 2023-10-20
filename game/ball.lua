@@ -3,23 +3,34 @@ Ball.__index = Ball
 
 setmetatable(Ball, Mover)
 
-function Ball:create(position, velocity, radius, footprintCount)
+function Ball:create(position, velocity, radius, footprintCount, image, minY)
     local ball = Mover:create(position, velocity)
     setmetatable(ball, Ball)
 
     local footprintTimeout = radius / velocity:mag() * 3
+    local diameter = radius * 2
 
     ball.radius = radius
     ball.footprints = {}
     ball.footprintCount = footprintCount
     ball.footprintTimeout = footprintTimeout
     ball.footprintSince = footprintTimeout
+    ball.image = image
+    ball.imageScale = {
+        x = diameter / image:getHeight(),
+        y = diameter / image:getHeight()
+    }
+    ball.minY = minY
 
     return ball
 end
 
 function Ball:draw()
-    love.graphics.circle('fill', self.position.x, self.position.y, self.radius)
+    if GlobalConfig.__DEV__ then
+        self:drawHitbox()
+    end
+
+    self:drawImage()
     self:drawFootprints()
 end
 
@@ -29,14 +40,33 @@ function Ball:update(dt)
     self:checkBounds()
 end
 
+function Ball:drawHitbox()
+    love.graphics.circle('line', self.position.x, self.position.y, self.radius)
+end
+
+function Ball:drawImage(position)
+    position = position or self.position
+
+    local rotation = (2 * math.pi) * love.timer.getTime()
+
+    love.graphics.push()
+    love.graphics.translate(position.x, position.y)
+    love.graphics.rotate(rotation)
+    love.graphics.draw(self.image, -self.radius, -self.radius, 0, self.imageScale.x, self.imageScale.y)
+    love.graphics.pop()
+end
+
 function Ball:drawFootprints()
-    love.graphics.setColor(255, 255, 255)
-    for i, v in pairs(self.footprints) do
-        local alpha = 255 - (#self.footprints - i) * 20
-        love.graphics.setColor(255, 255, 255, alpha / 255)
-        love.graphics.circle('line', v.x, v.y, self.radius)
+
+    if not (self.footprintCount == 0) then
+        local r, g, b, a = love.graphics.getColor()
+        for i, v in pairs(self.footprints) do
+            local alpha = 255 - (#self.footprints - i) * 10
+            love.graphics.setColor(r, g, b, alpha / 255)
+            self:drawImage(v)
+        end
+        love.graphics.setColor(r, g, b, a)
     end
-    love.graphics.setColor(255, 255, 255)
 end
 
 function Ball:addFootprint(dt)
@@ -56,7 +86,7 @@ end
 
 function Ball:checkBounds()
     local upperBound = height - self.radius
-    local lowerBound = self.radius
+    local lowerBound = self.minY + self.radius
 
     if self.position.y >= upperBound or self.position.y <= lowerBound then
         self.velocity.y = -self.velocity.y

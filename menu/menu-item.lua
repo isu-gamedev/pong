@@ -11,7 +11,7 @@ function MenuItem:create(text, func, args)
     item.func = func
     item.args = args
 
-    item.font = love.graphics.newFont('fonts/MartianMono.ttf', 12)
+    item.font = love.graphics.newFont('/assets/fonts/MartianMono.ttf', 12)
 
     return item
 end
