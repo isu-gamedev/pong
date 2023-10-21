@@ -12,11 +12,12 @@ function MenuItem:create(text, func, args, itemImage)
     item.args = args
 
     -- item.font = love.graphics.newFont('fonts/MartianMono.ttf', 12)
-    item.font = love.graphics.newFont('assets/fonts/BrahmsGotischCyr.otf', 70 * scale)
-    item.background = itemImage or love.graphics.newImage('assets/images/menu-item.png')
+    item.font = love.graphics.newFont('/assets/fonts/BrahmsGotischCyr.otf', 70 * scale)
+    item.background = itemImage or love.graphics.newImage('/assets/images/menu-item.png')
     item.height = item.background:getHeight() * scale
     item.width = item.background:getWidth() * scale
-    item.sound = love.audio.newSource('assets/sounds/click.mp3', 'static')
+    item.sound = love.audio.newSource('/assets/sounds/click.mp3', 'static')
+
     return item
 end
 

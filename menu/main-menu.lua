@@ -27,6 +27,7 @@ function MainMenu:create()
     self.background = {love.graphics.newImage('assets/images/menu-background.png'), love.graphics.newImage('assets/images/executioners.png')}
     self.title = love.graphics.newImage('assets/images/title.png')
     self.music = love.audio.newSource('assets/sounds/menu.mp3', 'stream')
+    love.audio.stop()
     self.music:play()
     return mainMenu
 end
@@ -56,7 +57,7 @@ end
 
 function MainMenu:draw()
     if not self.music:isPlaying() then
-        self.msuic:rewind()
+        self.music:rewind()
     end
     self:drawBackground()
     local showTitle = true

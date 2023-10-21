@@ -16,7 +16,7 @@ function Menu:create(title, items, x, y, background)
     menu.chosenItem = 1
     menu.background = background
     -- menu.titleFont = love.graphics.newFont('fonts/MartianMono.ttf', 32)
-    menu.titleFont = love.graphics.newFont('assets/fonts/BrahmsGotischCyr.otf', menu.titleHeight)
+    menu.titleFont = love.graphics.newFont('/assets/fonts/BrahmsGotischCyr.otf', menu.titleHeight)
     menu.titleColor = {0, 0, 0, 1}
     return menu
 end

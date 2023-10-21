@@ -26,7 +26,7 @@ function Vector:__add(other)
 end
 
 function Vector:__sub(other)
-    return Vector:create(self.x - other.x, self.y - other.y)
+    return type(other) == 'number' and Vector:create(self.x - other, self.y - other) or Vector:create(self.x - other.x, self.y - other.y)
 end
 
 function Vector:__mul(value)
@@ -50,8 +50,7 @@ end
 
 function Vector:limit(max)
     if self:mag() > max then
-        local norm = self:norm()
-        return norm * max
+        return self:norm() * max
     end
     return self
 end
@@ -80,5 +79,7 @@ function Vector:reflect(angle)
     local mag = self:mag()
     local sin = mag * math.sin(angle)
     local cos = mag * math.cos(angle)
-    return Vector:create(self.x > 0 and -cos or cos, self.y > 0 and sin or -sin)
+    local x = self.x > 0 and -cos or cos
+    local y = self.y > 0 and sin or -sin
+    return Vector:create(x, y)
 end

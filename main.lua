@@ -9,8 +9,7 @@ GameState = {
 }
 
 function love.load()
-    scale = 0.75
-    love.window.setMode(1920 * scale, 1080 * scale)
+    scale = GlobalConfig.SCALE
     width = love.graphics.getWidth()
     height = love.graphics.getHeight()
     local menuItem = love.graphics.newImage('assets/images/menu-item.png')
@@ -114,10 +113,6 @@ function createGameOver(winningSide, scoreLeft, scoreRigth)
 end
 
 function toggleSound()
-    -- TODO: toggle logic
-    if game.settings.soundOn then
-        pauseMenu.items[pauseMenu.chosenItem].text = 'Sound on'
-    else
-        pauseMenu.items[pauseMenu.chosenItem].text = 'Sound off'
-    end
+    game:toggleSound()
+    pauseMenu.items[pauseMenu.chosenItem].text = game.settings.soundOn and 'Sound on' or 'Sound off'
 end
