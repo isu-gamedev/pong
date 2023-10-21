@@ -13,13 +13,12 @@ function love.load()
     love.window.setMode(1920 * scale, 1080 * scale)
     width = love.graphics.getWidth()
     height = love.graphics.getHeight()
+    local menuItem = love.graphics.newImage('assets/images/menu-item.png')
     pauseMenu = Menu:create('Menu', {MenuItem:create('Continue', function()
         gameState = GameState.GAME
-    end, {}, love.graphics.newImage('assets/images/menu-item.png')), MenuItem:create('To menu', function()
+    end, {}, menuItem), MenuItem:create('Sound on', toggleSound, {}, menuItem), MenuItem:create('To menu', function()
         menu = createMenu()
-    end, {}, love.graphics.newImage('assets/images/menu-item.png')),
-                                     MenuItem:create('Quit', love.event.quit, {0}, love.graphics.newImage('assets/images/menu-item.png'))}, nil, nil,
-        love.graphics.newImage('assets/images/menu-background.png'))
+    end, {}, menuItem), MenuItem:create('Quit', love.event.quit, {0}, menuItem)}, nil, nil, love.graphics.newImage('assets/images/menu-background.png'))
 
     menu = createMenu()
 end
@@ -63,7 +62,8 @@ function love.keypressed(key)
         end
         local settings = {
             vsAi = mode ~= MainMenu.mode.PvP,
-            difficulty = mode
+            difficulty = mode,
+            soundOn = menu:isSoundOn()
         }
         game = createGame(settings)
     elseif gameState == GameState.PAUSED then
@@ -111,4 +111,13 @@ function createGameOver(winningSide, scoreLeft, scoreRigth)
     gameOverMenu.titleFont = love.graphics.newFont('assets/fonts/BrahmsGotischCyr.otf', 150 * scale)
     gameOverMenu.titleColor = {211, 0, 0, 1}
     return gameOverMenu
+end
+
+function toggleSound()
+    -- TODO: toggle logic
+    if game.settings.soundOn then
+        pauseMenu.items[pauseMenu.chosenItem].text = 'Sound on'
+    else
+        pauseMenu.items[pauseMenu.chosenItem].text = 'Sound off'
+    end
 end

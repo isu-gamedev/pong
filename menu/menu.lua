@@ -77,6 +77,11 @@ function Menu:keypressed(key, scancode)
         end
     elseif key == 'space' or key == 'return' then
         local chosenItem = self.items[self.chosenItem]
+        if chosenItem.sound:isPlaying() then
+            chosenItem.sound:stop()
+        end
+        chosenItem.sound:play()
+
         return chosenItem.func, chosenItem.args
     end
 end
