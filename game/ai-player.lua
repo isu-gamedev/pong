@@ -37,7 +37,7 @@ function AiPlayer:update(dt, ball)
 end
 
 function AiPlayer:isBallComming(ball)
-    return (self.isLeft and ball:isMovingLeft()) or (not self.isLeft and ball:isMovingRight())
+    return self.isLeft and ball:isMovingLeft() or not self.isLeft and ball:isMovingRight()
     -- local bbox = self:getBBox()
     -- return not (ball.position.x < bbox.left and ball:isMovingLeft()) and not (ball.position.x > bbox.right and ball:isMovingRight())
 end
@@ -45,7 +45,6 @@ end
 function AiPlayer:predict(ball, dt)
     local ballVelocityNorm = ball.velocity:norm()
     local bbox = self:getBBox()
-
     local needToPredict = self.predictionSince > self.difficulty.reactionTimeout and
                               (not self.prediction or self.prediction.norm.x * ballVelocityNorm.x < 0 or self.prediction.norm.y * ballVelocityNorm.y < 0)
 
@@ -60,8 +59,8 @@ function AiPlayer:predict(ball, dt)
         }, ball.velocity)
 
         if point then
-            local upperBound = height + bbox.height - ball.radius
-            local lowerBound = self.paddle.minY + ball.radius
+            local upperBound = self.paddle.maxy + bbox.height - ball.radius
+            local lowerBound = self.paddle.miny + ball.radius
 
             while point.y < lowerBound or point.y > upperBound do
                 if point.y < lowerBound then
@@ -99,12 +98,12 @@ function AiPlayer:predict(ball, dt)
 end
 
 function AiPlayer:moveToCenter()
-    local centerY = height / 2
+    local cy = (self.paddle.miny + self.paddle.maxy) / 2
     local bbox = self:getBBox()
 
-    if bbox.center < centerY - 5 then
+    if bbox.center < cy - 5 then
         self.paddle:moveDown()
-    elseif bbox.center > centerY + 5 then
+    elseif bbox.center > cy + 5 then
         self.paddle:moveUp()
     else
         self:stop()

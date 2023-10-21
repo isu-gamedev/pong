@@ -4,13 +4,14 @@ Game.__index = Game
 GameConfig = {
     Defaults = {
         Paddle = {
-            HEIGHT = 100,
-            SPEED = 500
+            X_OFFSET = 30 * GlobalConfig.SCALE,
+            HEIGHT = 160 * GlobalConfig.SCALE,
+            SPEED = 700 * GlobalConfig.SCALE
         },
         Ball = {
-            RADIUS = 20,
-            SPEED = 300,
-            FIRST_HIT_MULTIPLIER = 2,
+            RADIUS = 40 * GlobalConfig.SCALE,
+            SPEED = 500 * GlobalConfig.SCALE,
+            FIRST_HIT_MULTIPLIER = 2.5,
             MAX_BOUNCE_ANGLE = 45,
             FOOTPRINT_COUNT = 0
         },
@@ -30,7 +31,7 @@ GameConfig = {
 
     Sounds = {
         HIT = '/assets/sounds/hit.mp3',
-        BACKGROUND = '/assets/sounds/background.mp3'
+        BACKGROUND = '/assets/sounds/game.mp3'
     },
 
     Images = {
@@ -40,8 +41,8 @@ GameConfig = {
         BACKGROUND = '/assets/images/game-background.jpg'
     },
 
-    HEADER_HEIGHT = 50,
-    FONT_SIZE = 30
+    HEADER_HEIGHT = 100 * GlobalConfig.SCALE,
+    FONT_SIZE = 70 * GlobalConfig.SCALE
 }
 
 PlayerSide = {
@@ -56,44 +57,48 @@ GameDifficulty = {
 }
 
 function Game:create(settings)
+    ---------------------------------------
     settings = settings or {}
     settings.vsAi = settings.vsAi or false
     settings.difficulty = settings.difficulty or GameDifficulty.MEDIUM
     settings.soundOn = settings.soundOn or false
-
+    ---------------------------------------
     local game = {}
     setmetatable(game, Game)
-
-    local paddleX = 10
+    ---------------------------------------
     local paddleY = (height + GameConfig.HEADER_HEIGHT) / 2 - GameConfig.Defaults.Paddle.HEIGHT / 2
 
     local leftPaddleImage = love.graphics.newImage(GameConfig.Images.LEFT_PLAYER)
     local leftPaddleWidth = leftPaddleImage:getWidth() / leftPaddleImage:getHeight() * GameConfig.Defaults.Paddle.HEIGHT
-    local leftPaddle = Paddle:create(Vector:create(paddleX, paddleY), GameConfig.Defaults.Paddle.SPEED, leftPaddleWidth, GameConfig.Defaults.Paddle.HEIGHT,
-        leftPaddleImage, GameConfig.HEADER_HEIGHT)
+    local leftPaddle = Paddle:create(Vector:create(GameConfig.Defaults.Paddle.X_OFFSET, paddleY), GameConfig.Defaults.Paddle.SPEED, leftPaddleWidth,
+        GameConfig.Defaults.Paddle.HEIGHT, leftPaddleImage, GameConfig.HEADER_HEIGHT, height)
 
     local rightPaddleImage = love.graphics.newImage(GameConfig.Images.RIGHT_PLAYER)
     local rightPaddleWidth = rightPaddleImage:getWidth() / rightPaddleImage:getHeight() * GameConfig.Defaults.Paddle.HEIGHT
-    local rightPaddle = Paddle:create(Vector:create(width - paddleX - rightPaddleWidth, paddleY), GameConfig.Defaults.Paddle.SPEED, rightPaddleWidth,
-        GameConfig.Defaults.Paddle.HEIGHT, rightPaddleImage, GameConfig.HEADER_HEIGHT)
+    local rightPaddle = Paddle:create(Vector:create(width - GameConfig.Defaults.Paddle.X_OFFSET - rightPaddleWidth, paddleY), GameConfig.Defaults.Paddle.SPEED,
+        rightPaddleWidth, GameConfig.Defaults.Paddle.HEIGHT, rightPaddleImage, GameConfig.HEADER_HEIGHT, height)
 
     game.leftPlayer = Player:create('Left', leftPaddle)
     game.rightPlayer = settings.vsAi and AiPlayer:create('Right', rightPaddle, settings.difficulty, false) or Player:create('Right', rightPaddle)
-
+    ---------------------------------------
     local ballPosition = self:getInitialBallPosition()
     local ballVelocity = self:getInitialBallVelocity()
+    local ballImage = love.graphics.newImage(GameConfig.Images.BALL)
 
-    game.ball = Ball:create(ballPosition, ballVelocity, GameConfig.Defaults.Ball.RADIUS, GameConfig.Defaults.Ball.FOOTPRINT_COUNT,
-        love.graphics.newImage(GameConfig.Images.BALL), GameConfig.HEADER_HEIGHT)
-
+    game.ball = Ball:create(ballPosition, ballVelocity, GameConfig.Defaults.Ball.RADIUS, GameConfig.Defaults.Ball.FOOTPRINT_COUNT, ballImage, 0, width,
+        GameConfig.HEADER_HEIGHT, height)
+    ---------------------------------------
     game.settings = settings
     game.isFirstHit = false
     game.winner = nil
-
+    ---------------------------------------
     game.hitSound = love.audio.newSource(GameConfig.Sounds.HIT, 'static')
     game.backgroundSound = love.audio.newSource(GameConfig.Sounds.BACKGROUND, 'stream')
     game.backgroundSound:setLooping(true)
-
+    if settings.soundOn then
+        game.backgroundSound:play()
+    end
+    ---------------------------------------
     local backgroundImage = love.graphics.newImage(GameConfig.Images.BACKGROUND)
 
     game.backgroundImage = backgroundImage
@@ -101,33 +106,23 @@ function Game:create(settings)
         x = width / backgroundImage:getWidth(),
         y = (height - GameConfig.HEADER_HEIGHT) / backgroundImage:getHeight()
     }
-
+    ---------------------------------------
     game.font = love.graphics.newFont('/assets/fonts/BrahmsGotischCyr.otf', GameConfig.FONT_SIZE)
-
+    ---------------------------------------
     return game
 end
 
 function Game:draw()
     self:drawBackgroundImage()
     self:drawScore()
-
     self.leftPlayer:draw()
     self.rightPlayer:draw()
     self.ball:draw()
 end
 
 function Game:update(dt)
-    if not GlobalConfig.__DEV__ then
-        self:playBackgroundSound()
-    end
-
     self.leftPlayer:update(dt)
-    if self.settings.vsAi then
-        self.rightPlayer:update(dt, self.ball)
-    else
-        self.rightPlayer:update(dt)
-    end
-
+    self.rightPlayer:update(dt, self.ball)
     self:checkBallCollisions(dt)
     self.ball:update(dt)
     self:checkScore()
@@ -231,8 +226,8 @@ function Game:checkBallAndPlayerCollision(dt)
             self.ball:verticalBounce()
         end
 
-        if not GlobalConfig.__DEV__ and self.settings.soundOn then
-            self:playSound(self.hitSound)
+        if self.settings.soundOn then
+            self.hitSound:play()
         end
 
         if not self.isFirstHit then
@@ -245,7 +240,6 @@ end
 function Game:checkScore()
     if self.ball:isOutOfBounds() then
         local attackingSide = self:getAttackingSide()
-
         if attackingSide == PlayerSide.RIGHT then
             self.rightPlayer:addScore()
         elseif attackingSide == PlayerSide.LEFT then
@@ -254,22 +248,17 @@ function Game:checkScore()
 
         self.ball.position = self:getInitialBallPosition(attackingSide)
         self.ball.velocity = self:getInitialBallVelocity(attackingSide)
-
         self.isFirstHit = false
     end
 end
 
 function Game:getAttackingSide()
-    if self.ball:isMovingLeft() then
-        return PlayerSide.RIGHT
-    end
-    return PlayerSide.LEFT
+    return self.ball:isMovingLeft() and PlayerSide.RIGHT or PlayerSide.LEFT
 end
 
 function Game:isOver()
-    local maxScore = GameConfig.Defaults.MAX_SCORE
-    local hasLeftWon = self.leftPlayer.score == maxScore
-    local hasRightWon = self.rightPlayer.score == maxScore
+    local hasLeftWon = self.leftPlayer.score == GameConfig.Defaults.MAX_SCORE
+    local hasRightWon = self.rightPlayer.score == GameConfig.Defaults.MAX_SCORE
 
     if hasLeftWon or hasRightWon then
         return hasLeftWon and self.leftPlayer or self.rightPlayer
@@ -277,12 +266,11 @@ function Game:isOver()
     return nil
 end
 
-function Game:playSound(sound)
-    love.audio.play(sound)
-end
-
-function Game:playBackgroundSound()
-    if love.audio.getActiveSourceCount() == 0 and self.settings.soundOn then
-        self:playSound(self.backgroundSound)
+function Game:toggleSound()
+    if (self.settings.soundOn) then
+        self.backgroundSound:stop()
+    else
+        self.backgroundSound:play()
     end
+    self.settings.soundOn = not self.settings.soundOn
 end

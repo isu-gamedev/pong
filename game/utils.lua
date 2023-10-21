@@ -11,7 +11,6 @@ IntersectionDirection = {
 function Utils.ballIntersect(ball, rectBBox, velocityDelta)
     local dx = velocityDelta.x
     local dy = velocityDelta.y
-
     local point = nil
 
     if dx < 0 then

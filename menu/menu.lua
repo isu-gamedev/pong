@@ -1,27 +1,45 @@
 Menu = {}
 Menu.__index = Menu
 
-function Menu:create(title, items)
+function Menu:create(title, items, x, y, background)
     local menu = {}
     setmetatable(menu, Menu)
 
     menu.title = title
-    menu.betweenItems = 20
+    -- menu.titleY = (430 - 305) * scale -- relative to menu
+    menu.titleY = 70 * scale
+    menu.titleHeight = 70 * scale
+    menu.betweenItems = 25 * scale
     menu.items = items
-    menu.y = (height - menu:getHeight()) / 2
-    menu.x = (width - menu:getWidth()) / 2
+    menu.y = y or (height - menu:getHeight()) / 2
+    menu.x = x or (width - menu:getWidth()) / 2
     menu.chosenItem = 1
-    menu.titleFont = love.graphics.newFont('/assets/fonts/MartianMono.ttf', 32)
-
+    menu.background = background
+    -- menu.titleFont = love.graphics.newFont('fonts/MartianMono.ttf', 32)
+    menu.titleFont = love.graphics.newFont('/assets/fonts/BrahmsGotischCyr.otf', menu.titleHeight)
+    menu.titleColor = {0, 0, 0, 1}
     return menu
 end
 
-function Menu:draw()
-    local r, g, b, a = love.graphics.getColor()
-    love.graphics.setColor(0, 0, 0, 0.7)
-    love.graphics.rectangle('fill', 0, 0, width, height)
-    love.graphics.setColor(r, g, b, a)
-    love.graphics.printf(self.title, self.titleFont, 0, 30, width, 'center')
+function Menu:draw(darken, showTitle)
+    if darken == nil then
+        darken = true
+    end
+    if showTitle == nil then
+        showTitle = true
+    end
+    if self.background then
+        love.graphics.draw(self.background, 0, 0, 0, scale, scale)
+    end
+    if darken then
+        local r, g, b, a = love.graphics.getColor()
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle('fill', 0, 0, width, height)
+        love.graphics.setColor(r, g, b, a)
+    end
+    if showTitle then
+        love.graphics.printf({self.titleColor, self.title}, self.titleFont, 0, self.y - self.titleY - self.titleHeight, width, 'center')
+    end
     self:drawItems()
 end
 
@@ -59,6 +77,11 @@ function Menu:keypressed(key, scancode)
         end
     elseif key == 'space' or key == 'return' then
         local chosenItem = self.items[self.chosenItem]
+        if chosenItem.sound:isPlaying() then
+            chosenItem.sound:stop()
+        end
+        chosenItem.sound:play()
+
         return chosenItem.func, chosenItem.args
     end
 end

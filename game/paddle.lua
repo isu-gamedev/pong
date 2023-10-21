@@ -8,7 +8,7 @@ PaddleDirection = {
     DOWN = 2
 }
 
-function Paddle:create(position, speed, width, height, image, minY)
+function Paddle:create(position, speed, width, height, image, miny, maxy)
     local paddle = Mover:create(position, Vector:create(0, speed))
     setmetatable(paddle, Paddle)
 
@@ -20,16 +20,16 @@ function Paddle:create(position, speed, width, height, image, minY)
         x = width / image:getWidth(),
         y = height / image:getHeight()
     }
-    paddle.minY = minY
+    paddle.miny = miny
+    paddle.maxy = maxy
 
     return paddle
 end
 
 function Paddle:draw()
-    if GlobalConfig.__DEV__ == true then
+    if GlobalConfig.__DEV__ then
         self:drawHitbox()
     end
-
     self:drawImage()
 end
 
@@ -51,9 +51,8 @@ function Paddle:drawImage()
 end
 
 function Paddle:checkBounds()
-    local upperBound = height - self.height
-    local lowerBound = self.minY
-
+    local upperBound = self.maxy - self.height
+    local lowerBound = self.miny
     self.position.y = math.max(lowerBound, math.min(self.position.y, upperBound))
 end
 
